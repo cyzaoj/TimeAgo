@@ -11,6 +11,11 @@ class: LocalDate LocalDateTime Date support time ago.
 
 
 
+
+<BR>
+##DEMO
+<img src="./screenshot/time_ago.png" align="middle" />
+
 <BR>
 <BR>
 
@@ -45,22 +50,24 @@ implementation "com.aboust:time_ago:${latestVersion}"
 ## Usage
 
 
-First. coding in kotlin:
+####First. coding in kotlin:
 
 ``` kotlin
 
   Date().timeAgo(context)
   
-  BuildConfig.>= Android Q:
+  Build.VERSION.SDK_INT >= Android Q:
+
   LocalDateTime.now().timeAgo(context)
   LocalDate.now().timeAgo(context)
         
 ```
 
-Second. edit strings.xml
+####Second. edit strings.xml
 (Optional)  如果不配置values/strings.xml相应配置默认为英文
   
 ```xml
+
 <string name="ago">前</string>
 <string name="milliseconds">毫秒</string>
 <string name="minute">1分钟</string>
@@ -83,5 +90,6 @@ Second. edit strings.xml
 <string name="yesterday">昨天</string>
 <string name="day">1天</string>
 <string name="days">天</string>
+
 ```
 
