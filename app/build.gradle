@@ -1,0 +1,70 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        applicationId "com.aboust.timeago.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+        multiDexEnabled true
+        ndk {
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [
+                APP_VERSION      : defaultConfig.versionName + '_' + defaultConfig.versionCode,
+        ]
+
+        packagingOptions {
+            exclude 'META-INF/library_release.kotlin_module'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+
+    buildTypes {
+        sourceSets {
+            main {
+                jniLibs.srcDirs = ['libs', 'src/main/jniLibs']
+                java.srcDirs += 'src/main/kotlin'
+            }
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
+
+    implementation deps.kotlin.stdlib_jdk8
+    implementation deps.androidx.core_ktx
+    implementation deps.androidx.appcompat
+
+    implementation project(":library")
+
+
+    testImplementation deps.test.junit
+    androidTestImplementation deps.test.junit_test_ext
+    androidTestImplementation deps.test.androidx_test_espresso
+    androidTestImplementation deps.test.androidx_test_runner
+}

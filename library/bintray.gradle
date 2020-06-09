@@ -1,0 +1,121 @@
+//plugins {
+//    id "com.jfrog.bintray" version "1.8.4"
+//}
+
+apply plugin: "maven-publish"
+apply plugin: 'org.jetbrains.dokka'
+
+final String DESCRIPTION = "An Android TimeAgo Library"
+final String GITHUB_URL = "https://github.com/cyzaoj/TimeAgo"
+
+
+final String GROUP_ID = "com.aboust"
+final String ARTIFACT_ID = "time_ago"
+
+def VERSION_CODE = 2
+def VERSION_NAME = '0.0.1'
+
+
+//BinTray configuration - credentials stored in user's gradle.properties
+bintray {
+    user = getProperty('BINTRAY_USER')
+    key = getProperty('BINTRAY_KEY')
+    publications = ['TimeAgo']
+
+    pkg {
+        repo = 'android'
+        name = ARTIFACT_ID
+        userOrg = getProperty('USER_ORG')
+        desc = DESCRIPTION
+        vcsUrl = GITHUB_URL + '.git'
+        websiteUrl = GITHUB_URL
+        issueTrackerUrl = GITHUB_URL + '/issues'
+        licenses = ['MIT']
+        publish = true
+
+        version {
+            name = VERSION_NAME // Version name i.e. "1.0"
+            desc = DESCRIPTION
+            vcsTag = VERSION_NAME
+            released = new Date()
+        }
+    }
+}
+
+// Create the POM configuration - required for jCenter uploading
+def pomConfig = {
+    licenses {
+        license {
+            name "MIT License"
+            url "https://opensource.org/licenses/MIT"
+            distribution "repo"
+        }
+    }
+}
+
+
+dokka {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+bintrayUpload.dependsOn 'generatePomFileForTimeAgoPublication'
+bintrayUpload.dependsOn 'dokka'
+
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from "$buildDir/javadoc"
+}
+
+// Create the publication with the pom configuration:
+publishing {
+    publications {
+        TimeAgo(MavenPublication) {
+            groupId GROUP_ID
+            artifactId ARTIFACT_ID
+            version VERSION_NAME
+
+            //from components.android
+            artifact sourcesJar
+            artifact javadocJar
+
+            // Tell maven to prepare the generated "*.aar" file for publishing
+            artifact("$buildDir/outputs/aar/${project.name}-release.aar")
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', DESCRIPTION)
+                root.appendNode('name', ARTIFACT_ID)
+                root.appendNode('url', GITHUB_URL)
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+
+configurations {
+    javadocDeps
+}
+
+
+task showBintrayProps {
+    doLast {
+        user = getProperty('BINTRAY_USER')
+        userOrg = getProperty('USER_ORG')
+        key = getProperty('BINTRAY_KEY')
+        println "Bintray user/password: ${user}/${key} on ${userOrg}"
+    }
+}
+
+
+def final getProperty(key) {
+    return project.hasProperty(key) ? project.getProperty(key) : null
+}
+
+
